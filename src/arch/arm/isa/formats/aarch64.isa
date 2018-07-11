@@ -2046,6 +2046,7 @@ namespace Aarch64
           case M5OP_INIT_PARAM: return new Initparam64(machInst);
           case M5OP_RESET_STATS: return new Resetstats64(machInst);
           case M5OP_DUMP_STATS: return new Dumpstats64(machInst);
+          case M5OP_FLUSH_ALL_CACHES: return new FlushCaches64(machInst);
           case M5OP_DUMP_RESET_STATS: return new Dumpresetstats64(machInst);
           case M5OP_CHECKPOINT: return new M5checkpoint64(machInst);
           case M5OP_WRITE_FILE: return new M5writefile64(machInst);

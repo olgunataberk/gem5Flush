@@ -61,6 +61,7 @@
 #include "base/output.hh"
 #include "config/the_isa.hh"
 #include "cpu/base.hh"
+#include "cpu/checker/cpu.hh"
 #include "cpu/quiesce_event.hh"
 #include "cpu/thread_context.hh"
 #include "debug/Loader.hh"
@@ -197,8 +198,11 @@ pseudoInst(ThreadContext *tc, uint8_t func, uint8_t subfunc)
         workend(tc, args[0], args[1]);
         break;
 
+      case M5OP_FLUSH_ALL_CACHES:
+        flushCaches(tc);
+        break;
+
       case M5OP_ANNOTATE:
-      case M5OP_RESERVED2:
       case M5OP_RESERVED3:
       case M5OP_RESERVED4:
       case M5OP_RESERVED5:
@@ -716,4 +720,12 @@ workend(ThreadContext *tc, uint64_t workid, uint64_t threadid)
     }
 }
 
+void
+flushCaches(ThreadContext *tc)
+{
+    System* sysPtr = tc->getSystemPtr();
+    DPRINTF(PseudoInst, "PseudoInst::flushCaches()\n");
+    sysPtr->memWriteback();
+    sysPtr->memInvalidate();
+}
 } // namespace PseudoInst

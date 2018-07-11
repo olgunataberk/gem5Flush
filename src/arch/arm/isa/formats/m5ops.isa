@@ -58,6 +58,7 @@ def format M5ops() {{
             case M5OP_INIT_PARAM: return new Initparam(machInst);
             case M5OP_RESET_STATS: return new Resetstats(machInst);
             case M5OP_DUMP_STATS: return new Dumpstats(machInst);
+            case M5OP_FLUSH_ALL_CACHES: return new FlushCaches(machInst);
             case M5OP_DUMP_RESET_STATS: return new Dumpresetstats(machInst);
             case M5OP_CHECKPOINT: return new M5checkpoint(machInst);
             case M5OP_WRITE_FILE: return new M5writefile(machInst);

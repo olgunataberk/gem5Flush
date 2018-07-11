@@ -55,7 +55,7 @@ JR=jar
 #JDK_PATH=/path/to/jdk/version_number
 
 CFLAGS=-O2 -I $(JDK_PATH)/include/ -I $(JDK_PATH)/include/linux \
-       -I$(PWD)/../../include -march=armv8-a
+       -I$(PWD)/../../include -march=armv8-a --static
 LDFLAGS=-static -L. -lm5
 
 LIB_OBJS=m5op_arm_A64.o
@@ -63,6 +63,7 @@ OBJS=m5.o
 JNI_OBJS=m5op_arm_A64.o jni_gem5Op.o
 
 all: libm5.a m5
+	cp m5op_arm_A64.o ~/gem5/tests/test-progs/arm-progs/
 
 %.o: %.S
 	$(CC) $(CFLAGS) -o $@ -c $<
