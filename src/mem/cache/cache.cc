@@ -1071,6 +1071,11 @@ Cache::recvAtomic(PacketPtr pkt)
 
     promoteWholeLineWrites(pkt);
 
+    if(pkt -> isFlush())
+    {
+      DPRINTFN("I am a cache and I could actually receive a flush request.\n");
+    }
+
     // follow the same flow as in recvTimingReq, and check if a cache
     // above us is responding
     if (pkt->cacheResponding() && !pkt->isClean()) {
