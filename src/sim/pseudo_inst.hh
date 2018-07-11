@@ -89,7 +89,7 @@ void switchcpu(ThreadContext *tc);
 void workbegin(ThreadContext *tc, uint64_t workid, uint64_t threadid);
 void workend(ThreadContext *tc, uint64_t workid, uint64_t threadid);
 void togglesync(ThreadContext *tc);
-
+void flushCaches(ThreadContext *tc);
 } // namespace PseudoInst
 
 #endif // __SIM_PSEUDO_INST_HH__

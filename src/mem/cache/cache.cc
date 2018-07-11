@@ -1742,6 +1742,7 @@ Cache::cleanEvictBlk(CacheBlk *blk)
 void
 Cache::memWriteback()
 {
+    DPRINTFN("MEMWB called\n");
     CacheBlkVisitorWrapper visitor(*this, &Cache::writebackVisitor);
     tags->forEachBlk(visitor);
 }
