@@ -1074,6 +1074,10 @@ Cache::recvAtomic(PacketPtr pkt)
     if(pkt -> isFlush())
     {
       DPRINTFN("I am a cache and I could actually receive a flush request.\n");
+      this -> memWriteback();
+      this -> memInvalidate();
+      //memSidePort -> sendAtomic(new Packet(pkt,false,false));
+      return lat * clockPeriod(); // is this okay?
     }
 
     // follow the same flow as in recvTimingReq, and check if a cache
@@ -1755,6 +1759,7 @@ Cache::memWriteback()
 void
 Cache::memInvalidate()
 {
+    DPRINTFN("MEMIVD called\n");
     CacheBlkVisitorWrapper visitor(*this, &Cache::invalidateVisitor);
     tags->forEachBlk(visitor);
 }
@@ -1773,7 +1778,7 @@ Cache::writebackVisitor(CacheBlk &blk)
 {
     if (blk.isDirty()) {
         assert(blk.isValid());
-
+        DPRINTF(Cache, "DirtyBlock - WritebackVisitor()\n");
         Request request(tags->regenerateBlkAddr(blk.tag, blk.set),
                         blkSize, 0, Request::funcMasterId);
         request.taskId(blk.task_id);

@@ -723,16 +723,16 @@ workend(ThreadContext *tc, uint64_t workid, uint64_t threadid)
 void
 flushCaches(ThreadContext *tc)
 {
-    CheckerCPU* cpu = tc->getCheckerCpuPtr();
+    BaseCPU* cpu = tc->getCpuPtr();
     DPRINTF(PseudoInst, "PseudoInst::flushCaches()\n");
-    MasterPort icp = cpu -> getInstPort();
-    MasterPort dcp = cpu -> getDataPort();
-    DPRINTF(PseudoInst, "Got ports\n");
-    Request* req = new Request();
+    Request* req = new Request(0, 0, 0, Request::CLEAN, 0,0, 0);
     MemCmd mcmd = MemCmd(MemCmd::Command::FlushReq);
-    Packet* cleanPkt = new Packet(req, mcmd);
-    icp.sendAtomic(cleanPkt);
-    dcp.sendAtomic(cleanPkt); //TODO might need to copy this packet first
+    Packet* cleanIC = new Packet(req, mcmd);
+    Packet* cleanDC = new Packet(req, mcmd);
+    DPRINTF(PseudoInst, "Generate packets that will flush all caches.\n");
+    (cpu -> getInstPort()).sendAtomic(cleanIC);
+    (cpu -> getDataPort()).sendAtomic(cleanDC);
+    DPRINTF(PseudoInst, "Should be done by now.\n");
     //sysPtr->memWriteback();
     //sysPtr->memInvalidate();
 }
