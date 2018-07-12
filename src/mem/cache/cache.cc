@@ -1805,6 +1805,7 @@ Cache::invalidateVisitor(CacheBlk &blk)
         warn_once("Invalidating dirty cache lines. Expect things to break.\n");
 
     if (blk.isValid()) {
+        DPRINTFN("Invalidating a block.\n");
         assert(!blk.isDirty());
         invalidateBlock(&blk);
     }
