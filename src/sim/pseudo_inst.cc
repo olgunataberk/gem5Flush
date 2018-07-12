@@ -730,8 +730,8 @@ flushCaches(ThreadContext *tc)
     Packet* cleanIC = new Packet(req, mcmd);
     Packet* cleanDC = new Packet(req, mcmd);
     DPRINTF(PseudoInst, "Generate packets that will flush all caches.\n");
-    (cpu -> getInstPort()).sendAtomic(cleanIC);
-    (cpu -> getDataPort()).sendAtomic(cleanDC);
+    (cpu -> getInstPort()).sendFunctional(cleanIC);
+    (cpu -> getDataPort()).sendFunctional(cleanDC);
     DPRINTF(PseudoInst, "Should be done by now.\n");
     //sysPtr->memWriteback();
     //sysPtr->memInvalidate();

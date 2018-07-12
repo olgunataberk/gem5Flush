@@ -1071,15 +1071,6 @@ Cache::recvAtomic(PacketPtr pkt)
 
     promoteWholeLineWrites(pkt);
 
-    if(pkt -> isFlush())
-    {
-      DPRINTFN("I am a cache and I could actually receive a flush request.\n");
-      this -> memWriteback();
-      this -> memInvalidate();
-      //memSidePort -> sendAtomic(new Packet(pkt,false,false));
-      return lat * clockPeriod(); // is this okay?
-    }
-
     // follow the same flow as in recvTimingReq, and check if a cache
     // above us is responding
     if (pkt->cacheResponding() && !pkt->isClean()) {
@@ -1258,6 +1249,15 @@ Cache::functionalAccess(PacketPtr pkt, bool fromCpuSide)
         // so we don't need to check if we need to update anything.
         memSidePort->sendFunctional(pkt);
         return;
+    }
+
+    if(pkt -> isFlush())
+    {
+      DPRINTFN("I am a cache and I could actually receive a flush request.\n");
+      this -> memWriteback();
+      this -> memInvalidate();
+      //memSidePort -> sendFunctional(new Packet(pkt,false,false));
+      return; // is this okay?
     }
 
     Addr blk_addr = pkt->getBlockAddr(blkSize);
