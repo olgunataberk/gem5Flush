@@ -1256,7 +1256,7 @@ Cache::functionalAccess(PacketPtr pkt, bool fromCpuSide)
       DPRINTFN("I am a cache and I could actually receive a flush request.\n");
       this -> memWriteback();
       this -> memInvalidate();
-      //memSidePort -> sendFunctional(new Packet(pkt,false,false));
+      memSidePort -> sendFunctional(new Packet(pkt,false,false));
       return; // is this okay?
     }
 
@@ -1790,6 +1790,9 @@ Cache::writebackVisitor(CacheBlk &blk)
         packet.dataStatic(blk.data);
 
         memSidePort->sendFunctional(&packet);
+        // might send another packet that forces a writeback at the upper level
+        // but have to distinguish between calls from the pseudo inst and python
+        // code
 
         blk.status &= ~BlkDirty;
     }
