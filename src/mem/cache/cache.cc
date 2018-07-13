@@ -1258,17 +1258,28 @@ Cache::functionalAccess(PacketPtr pkt, bool fromCpuSide)
       {
         if(((MasterPort*)memSidePort)-> isSnooping())
           memSidePort -> sendFunctional(new Packet(pkt,false,false));
+        else
+        {
+          Request* reqFlush = new Request(0, 0, Request::CLEAN, Request::funcMasterId);
+          reqFlush -> setFlags(Request::INVALIDATE);
+          MemCmd mcmdFlush = MemCmd(MemCmd::Command::FlushReq);
+          Packet* cleanL1 = new Packet(reqFlush, mcmdFlush);
+          cpuSidePort -> sendFunctionalSnoop(cleanL1);
+        }
       }
     }
 
-    if(pkt -> isFlush())
+    if(!fromCpuSide)
     {
-      DPRINTFN("I am a cache and I could actually receive a flush request.\n");
-      this -> memWriteback();
-      this -> memInvalidate();
-      return; // is this okay?
-      // may use port -> isSnooping() here to decide if we are connected
-      // to other caches.
+      if(pkt -> isFlush())
+      {
+        DPRINTFN("I am a cache and I could actually receive a flush request.\n");
+        this -> memWriteback();
+        this -> memInvalidate();
+        return; // is this okay?
+        // may use port -> isSnooping() here to decide if we are connected
+        // to other caches.
+      }
     }
 
     Addr blk_addr = pkt->getBlockAddr(blkSize);

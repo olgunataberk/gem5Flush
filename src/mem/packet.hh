@@ -160,6 +160,7 @@ class MemCmd
         IsError,        //!< Error response
         IsPrint,        //!< Print state matching address (for debugging)
         IsFlush,        //!< Flush the address from caches
+        IsBeginFlush,
         FromCache,      //!< Request originated from a caching agent
         NUM_COMMAND_ATTRIBUTES
     };
@@ -550,6 +551,7 @@ class Packet : public Printable
     bool isError() const             { return cmd.isError(); }
     bool isPrint() const             { return cmd.isPrint(); }
     bool isFlush() const             { return cmd.isFlush(); }
+    bool isBeginFlush() const        { return cmd.isBeginFlush(); }
 
     //@{
     /// Snoop flags
