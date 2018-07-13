@@ -130,9 +130,10 @@ class MemCmd
         FunctionalWriteError, // unable to fulfill functional write
         // Fake simulator-only commands
         PrintReq,       // Print state matching address
-        FlushReq,      //request for a cache flush
+        FlushReq,       // request for a cache flush
         InvalidateReq,   // request for address to be invalidated
         InvalidateResp,
+        BeginFlushReq,
         NUM_MEM_CMDS
     };
 
@@ -225,6 +226,7 @@ class MemCmd
     bool isError() const        { return testCmdAttrib(IsError); }
     bool isPrint() const        { return testCmdAttrib(IsPrint); }
     bool isFlush() const        { return testCmdAttrib(IsFlush); }
+    bool isBeginFlush() const   { return testCmdAttrib(IsBeginFlush); }
 
     Command
     responseCommand() const

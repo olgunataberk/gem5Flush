@@ -214,6 +214,8 @@ MemCmd::commandInfo[] =
     { SET2(IsRequest, IsPrint), InvalidCmd, "PrintReq" },
     /* Flush Request */
     { SET3(IsRequest, IsFlush, NeedsWritable), InvalidCmd, "FlushReq" },
+    /* Begin Flush Request */
+    { SET2(IsRequest, IsBeginFlush), InvalidCmd, "BeginFlushReq"}
     /* Invalidation Request */
     { SET5(IsInvalidate, IsRequest, NeedsWritable, NeedsResponse, FromCache),
       InvalidateResp, "InvalidateReq" },

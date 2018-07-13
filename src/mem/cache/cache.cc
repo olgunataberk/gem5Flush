@@ -1251,13 +1251,24 @@ Cache::functionalAccess(PacketPtr pkt, bool fromCpuSide)
         return;
     }
 
+    if(fromCpuSide)
+    {
+      /* This could fail if there is no L2 cache in the system */
+      if(pkt -> isBeginFlush())
+      {
+        if(((MasterPort*)memSidePort)-> isSnooping())
+          memSidePort -> sendFunctional(new Packet(pkt,false,false));
+      }
+    }
+
     if(pkt -> isFlush())
     {
       DPRINTFN("I am a cache and I could actually receive a flush request.\n");
       this -> memWriteback();
       this -> memInvalidate();
-      memSidePort -> sendFunctional(new Packet(pkt,false,false));
       return; // is this okay?
+      // may use port -> isSnooping() here to decide if we are connected
+      // to other caches.
     }
 
     Addr blk_addr = pkt->getBlockAddr(blkSize);
@@ -2836,6 +2847,7 @@ Cache::MemSidePort::recvAtomicSnoop(PacketPtr pkt)
 void
 Cache::MemSidePort::recvFunctionalSnoop(PacketPtr pkt)
 {
+    DPRINTFN("Receive functional snoop for some reason.\n");
     // functional snoop (note that in contrast to atomic we don't have
     // a specific functionalSnoop method, as they have the same
     // behaviour regardless)
