@@ -728,10 +728,9 @@ flushCaches(ThreadContext *tc)
     Request* req = new Request(0, 0, Request::CLEAN, Request::funcMasterId);
     req -> setFlags(Request::INVALIDATE);
     MemCmd mcmd = MemCmd(MemCmd::Command::BeginFlushReq);
-    Packet* cleanIC = new Packet(req, mcmd);
     Packet* cleanDC = new Packet(req, mcmd);
+    DPRINTF(PseudoInst, "Packet is req: %d Cmd: 0x%x\n", cleanDC -> isRequest(), cleanDC -> cmd.toInt());
     DPRINTF(PseudoInst, "Generate packets that will flush all caches.\n");
-    (cpu -> getInstPort()).sendFunctional(cleanIC);
     (cpu -> getDataPort()).sendFunctional(cleanDC);
     DPRINTF(PseudoInst, "Should be done by now.\n");
     //sysPtr->memWriteback();

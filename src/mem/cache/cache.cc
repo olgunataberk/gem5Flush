@@ -1256,6 +1256,7 @@ Cache::functionalAccess(PacketPtr pkt, bool fromCpuSide)
       /* This could fail if there is no L2 cache in the system */
       if(pkt -> isBeginFlush())
       {
+        DPRINTFN("Cache could actually receive flush request from CPU.\n");
         if(((MasterPort*)memSidePort)-> isSnooping())
           memSidePort -> sendFunctional(new Packet(pkt,false,false));
         else
