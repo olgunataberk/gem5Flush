@@ -1261,6 +1261,7 @@ Cache::functionalAccess(PacketPtr pkt, bool fromCpuSide)
           memSidePort -> sendFunctional(new Packet(pkt,false,false));
         else
         {
+          DPRINTFN("Possibly L2 sending actual flush command down the hierarchy.\n");
           Request* reqFlush = new Request(0, 0, Request::CLEAN, Request::funcMasterId);
           reqFlush -> setFlags(Request::INVALIDATE);
           MemCmd mcmdFlush = MemCmd(MemCmd::Command::FlushReq);
