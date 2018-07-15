@@ -429,8 +429,11 @@ AbstractMemory::access(PacketPtr pkt)
 void
 AbstractMemory::functionalAccess(PacketPtr pkt)
 {
+    // Flush request packets don't have a legit address
+    // hence the following change,
     if(pkt->isBeginFlush())
       return;
+
     assert(AddrRange(pkt->getAddr(),
                      pkt->getAddr() + pkt->getSize() - 1).isSubset(range));
 

@@ -1256,18 +1256,30 @@ Cache::functionalAccess(PacketPtr pkt, bool fromCpuSide)
       /* This could fail if there is no L2 cache in the system */
       if(pkt -> isBeginFlush())
       {
-        DPRINTFN("Cache could actually receive flush request from CPU.\n");
-        if(((MasterPort*)memSidePort)-> isSnooping())
+        DPRINTF(Cache, "BeginFlushReq came from CPU-side.\n");
+        // This is basically cheating, somehow need to identify
+        // the LLC, as far as I know these structures can only
+        // be identified by their names, which would render this
+        // method useless if someone were to change the config script?
+        if(((MasterPort*)memSidePort) -> getSlavePort().name().find("membus") == (size_t)(-1))
+        {
+          DPRINTF(Cache, "%s sending to memside\n",this->name());
           memSidePort -> sendFunctional(new Packet(pkt,false,false));
+        }
         else
         {
-          DPRINTFN("Possibly L2 sending actual flush command down the hierarchy.\n");
+          DPRINTF(Cache, "Possibly L2 sending actual flush command down the hierarchy.\n");
           Request* reqFlush = new Request(0, 0, Request::CLEAN, Request::funcMasterId);
           reqFlush -> setFlags(Request::INVALIDATE);
           MemCmd mcmdFlush = MemCmd(MemCmd::Command::FlushReq);
           Packet* cleanL1 = new Packet(reqFlush, mcmdFlush);
           cpuSidePort -> sendFunctionalSnoop(cleanL1);
+          // at this point all lower level caches have been flushed
+          // flush this cache...
+          this -> memWriteback();
+          this -> memInvalidate();
         }
+        return;
       }
     }
 
@@ -1275,13 +1287,12 @@ Cache::functionalAccess(PacketPtr pkt, bool fromCpuSide)
     {
       if(pkt -> isFlush())
       {
-        DPRINTFN("I am a cache and I could actually receive a flush request.\n");
+        DPRINTF(Cache, "Receive a flush request.\n");
         this -> memWriteback();
         this -> memInvalidate();
         return; // is this okay?
-        // may use port -> isSnooping() here to decide if we are connected
-        // to other caches.
-      }
+      }else if(pkt -> isBeginFlush()) // Received from a nearby cache
+        return;
     }
 
     Addr blk_addr = pkt->getBlockAddr(blkSize);
@@ -1775,7 +1786,7 @@ Cache::cleanEvictBlk(CacheBlk *blk)
 void
 Cache::memWriteback()
 {
-    DPRINTFN("MEMWB called\n");
+    DPRINTF(Cache, "Cache::memWriteback()\n");
     CacheBlkVisitorWrapper visitor(*this, &Cache::writebackVisitor);
     tags->forEachBlk(visitor);
 }
@@ -1783,7 +1794,7 @@ Cache::memWriteback()
 void
 Cache::memInvalidate()
 {
-    DPRINTFN("MEMIVD called\n");
+    DPRINTF(Cache, "Cache::memInvalidate()\n");
     CacheBlkVisitorWrapper visitor(*this, &Cache::invalidateVisitor);
     tags->forEachBlk(visitor);
 }
@@ -1802,7 +1813,6 @@ Cache::writebackVisitor(CacheBlk &blk)
 {
     if (blk.isDirty()) {
         assert(blk.isValid());
-        DPRINTF(Cache, "DirtyBlock - WritebackVisitor()\n");
         Request request(tags->regenerateBlkAddr(blk.tag, blk.set),
                         blkSize, 0, Request::funcMasterId);
         request.taskId(blk.task_id);
@@ -1832,7 +1842,6 @@ Cache::invalidateVisitor(CacheBlk &blk)
         warn_once("Invalidating dirty cache lines. Expect things to break.\n");
 
     if (blk.isValid()) {
-        DPRINTFN("Invalidating a block.\n");
         assert(!blk.isDirty());
         invalidateBlock(&blk);
     }
@@ -2860,7 +2869,6 @@ Cache::MemSidePort::recvAtomicSnoop(PacketPtr pkt)
 void
 Cache::MemSidePort::recvFunctionalSnoop(PacketPtr pkt)
 {
-    DPRINTFN("Receive functional snoop for some reason.\n");
     // functional snoop (note that in contrast to atomic we don't have
     // a specific functionalSnoop method, as they have the same
     // behaviour regardless)
